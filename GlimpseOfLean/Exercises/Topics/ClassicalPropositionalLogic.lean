@@ -11,7 +11,7 @@ Note that there is also version of this file for intuitionistic logic:
 
 def Variable : Type := ℕ
 
-/- We define propositional formula, and some notation for them. -/
+/- We define propositional formulae, and some notation for them. -/
 
 inductive Formula : Type where
   | var : Variable → Formula
@@ -45,7 +45,9 @@ def IsTrue (v : Variable → Prop) : Formula → Prop
   | A ⇒ B => IsTrue v A → IsTrue v B
 
 def Satisfies (v : Variable → Prop) (Γ : Set Formula) : Prop := ∀ {A}, A ∈ Γ → IsTrue v A
+
 def Models (Γ : Set Formula) (A : Formula) : Prop := ∀ {v}, Satisfies v Γ → IsTrue v A
+
 local infix:27 (priority := high) " ⊨ " => Models
 def Valid (A : Formula) : Prop := ∅ ⊨ A
 
@@ -58,12 +60,22 @@ variable {v : Variable → Prop} {A B : Formula}
 @[simp] lemma isTrue_neg : IsTrue v ~A ↔ ¬ IsTrue v A := by simp
 
 @[simp] lemma isTrue_top : IsTrue v ⊤ := by {
-  sorry
+  simp
 }
 
-@[simp] lemma isTrue_equiv : IsTrue v (A ⇔ B) ↔ (IsTrue v A ↔ IsTrue v B) := by {
-  sorry
+@[simp] lemma isTrue_equiv :
+  IsTrue v (A ⇔ B) ↔ (IsTrue v A ↔ IsTrue v B) :=
+by {
+  constructor
+  · intro h
+    simp at h
+    exact ⟨h.1, h.2⟩
+  · intro h
+    simp
+    exact ⟨h.1, h.2⟩
 }
+
+-- TODO: I stopped at this point
 
 /- As an exercise, let's prove (using classical logic) the double negation elimination principle.
   `by_contra h` might be useful to prove something by contradiction. -/

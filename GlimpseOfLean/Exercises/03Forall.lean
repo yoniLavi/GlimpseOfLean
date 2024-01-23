@@ -9,8 +9,9 @@ namespace Forall
 
 In this file, we'll learn about the `∀` quantifier.
 
-Let `P` be a predicate on a type `X`. This means for every mathematical
-object `x` with type `X`, we get a mathematical statement `P x`.
+Let `P` be a predicate on a type `X`.
+This means that for every mathematical object `x` with type `X`,
+we get a mathematical statement `P x`.
 In Lean, `P x` has type `Prop`.
 
 Lean sees a proof `h` of `∀ x, P x` as a function sending any `x : X` to
@@ -31,14 +32,19 @@ def even_fun (f : ℝ → ℝ) := ∀ x, f (-x) = f x
 
 /-
 In the next proof, we also take the opportunity to introduce the
-`unfold` tactic, which simply unfolds definitions. Here this is purely
-for didactic reason, Lean doesn't need those `unfold` invocations.
-We will also use the `rfl` tactic, which proves equalities that are true
-by definition (in a very strong sense), it stands for "reflexivity".
+`unfold` tactic, which simply unfolds definitions.
+Here this is purely for didactic reason, Lean doesn't need those `unfold` invocations.
+We will also use the `rfl` tactic, which stands for "reflexivity" and
+proves equalities that are true by definition (in a very strong sense).
 -/
 
-example (f g : ℝ → ℝ) (hf : even_fun f) (hg : even_fun g) : even_fun (f + g) := by {
-  -- Our assumption on that f is even means ∀ x, f (-x) = f x
+example
+  (f g : ℝ → ℝ)
+  (hf : even_fun f)
+  (hg : even_fun g) :
+  even_fun (f + g) :=
+by {
+  -- Our assumption that f is even means ∀ x, f (-x) = f x
   unfold even_fun at hf
   -- and the same for g
   unfold even_fun at hg
@@ -78,7 +84,10 @@ simply need to move the cursor inside the list.
 Hence we can compress the above proof to:
 -/
 
-example (f g : ℝ → ℝ) : even_fun f → even_fun g → even_fun (f + g) := by {
+example
+  (f g : ℝ → ℝ) :
+  even_fun f → even_fun g → even_fun (f + g) :=
+by {
   intro hf hg x
   calc
     (f + g) (-x) = f (-x) + g (-x)  := by rfl
@@ -90,8 +99,16 @@ Now let's practice. Recall that if you need to learn how to type a unicode
 symbol you can put your mouse cursor above the symbol and wait for one second.
 -/
 
-example (f g : ℝ → ℝ) (hf : even_fun f) : even_fun (g ∘ f) := by {
-  sorry
+example
+  (f g : ℝ → ℝ)
+  (hf : even_fun f) :
+  even_fun (g ∘ f) :=
+by {
+  intro x
+  calc
+    (g ∘ f) (-x) = g (f (-x))  := by rfl
+               _ = g (f x)     := by rw [hf]
+               _ = (g ∘ f) x   := by rfl
 }
 
 /-
@@ -105,8 +122,12 @@ def non_decreasing (f : ℝ → ℝ) := ∀ x₁ x₂, x₁ ≤ x₂ → f x₁ 
 def non_increasing (f : ℝ → ℝ) := ∀ x₁ x₂, x₁ ≤ x₂ → f x₁ ≥ f x₂
 
 /- Let's be very explicit and use forward reasoning first. -/
-example (f g : ℝ → ℝ) (hf : non_decreasing f) (hg : non_decreasing g) :
-    non_decreasing (g ∘ f) := by {
+example
+  (f g : ℝ → ℝ)
+  (hf : non_decreasing f)
+  (hg : non_decreasing g) :
+  non_decreasing (g ∘ f) :=
+by {
   -- Let x₁ and x₂ be real numbers such that x₁ ≤ x₂
   intro x₁ x₂ h
   -- Since f is non-decreasing, f x₁ ≤ f x₂.
@@ -122,24 +143,33 @@ they could be inferred from the type of `hf`.
 We could have written `hf _ _ h` and Lean would have filled the holes denoted by `_`.
 The same remark applies to the last line.
 
-One possible variation on the above proof is to
-use the `specialize` tactic to replace `hf` by its specialization to the relevant value.
+One possible variation on the above proof is to use the `specialize` tactic
+to replace `hf` by its specialization to the relevant value.
  -/
 
-example (f g : ℝ → ℝ) (hf : non_decreasing f) (hg : non_decreasing g) :
-    non_decreasing (g ∘ f) := by {
+example
+  (f g : ℝ → ℝ)
+  (hf : non_decreasing f)
+  (hg : non_decreasing g) :
+  non_decreasing (g ∘ f) :=
+by {
   intro x₁ x₂ h
-  specialize hf x₁ x₂ h
-  exact hg (f x₁) (f x₂) hf
+  specialize hf _ _ h
+  exact hg (f _) (f _) hf
 }
 
 /-
 This `specialize` tactic is mostly useful for exploration, or in preparation for rewriting
-in the assumption. One can very often replace its use by using more complicated expressions
+in the assumption.
+One can very often replace its use by using more complicated expressions
 directly involving the original assumption, as in the next variation:
 -/
-example (f g : ℝ → ℝ) (hf : non_decreasing f) (hg : non_decreasing g) :
-    non_decreasing (g ∘ f) := by {
+example
+  (f g : ℝ → ℝ)
+  (hf : non_decreasing f)
+  (hg : non_decreasing g) :
+  non_decreasing (g ∘ f) :=
+by {
   intro x₁ x₂ h
   exact hg (f x₁) (f x₂) (hf x₁ x₂ h)
 }
@@ -150,8 +180,12 @@ As usual with this style, we use `apply` and enjoy Lean specializing assumptions
 using so-called unification.
 -/
 
-example (f g : ℝ → ℝ) (hf : non_decreasing f) (hg : non_decreasing g) :
-    non_decreasing (g ∘ f) := by {
+example
+  (f g : ℝ → ℝ)
+  (hf : non_decreasing f)
+  (hg : non_decreasing g) :
+  non_decreasing (g ∘ f) :=
+by {
   -- Let x₁ and x₂ be real numbers such that x₁ ≤ x₂
   intro x₁ x₂ h
   -- We need to prove (g ∘ f) x₁ ≤ (g ∘ f) x₂.
@@ -163,15 +197,11 @@ example (f g : ℝ → ℝ) (hf : non_decreasing f) (hg : non_decreasing g) :
   exact h
 }
 
-example (f g : ℝ → ℝ) (hf : non_decreasing f) (hg : non_increasing g) :
-    non_increasing (g ∘ f) := by {
-  sorry
-}
 
 /- # Finding lemmas
 
 Lean's mathematical library contains many useful facts,
-and remembering all of them my name is infeasible.
+and remembering all of them by name is infeasible.
 The following exercises teach you two such techniques.
 * `simp` will simplify complicated expressions.
 * `apply?` will find lemmas from the library.
@@ -179,20 +209,31 @@ The following exercises teach you two such techniques.
 
 /- Use `simp` to prove the following. Note that `X : Set ℝ`
 means that `X` is a set containing (only) real numbers. -/
-example (x : ℝ) (X Y : Set ℝ) (hx : x ∈ X) : x ∈ (X ∩ Y) ∪ (X \ Y) := by {
-  sorry
+example
+  (x : ℝ)
+  (X Y : Set ℝ)
+  (hx : x ∈ X) :
+  x ∈ (X ∩ Y) ∪ (X \ Y) :=
+by {
+  simp
+  trivial
 }
 
 /- Use `apply?` to find the lemma that every continuous function with compact support
 has a global minimum. -/
 
-example (f : ℝ → ℝ) (hf : Continuous f) (h2f : HasCompactSupport f) : ∃ x, ∀ y, f x ≤ f y := by {
-  sorry
+example
+  (f : ℝ → ℝ)
+  (hf : Continuous f)
+  (h2f : HasCompactSupport f) :
+  ∃ x, ∀ y, f x ≤ f y :=
+by {
+  exact Continuous.exists_forall_le_of_hasCompactSupport hf h2f
 }
 
 /-
 This is the end of this file where you learned how to handle universal quantifiers.
-You learned about tactics:
+You learned about the tactics:
 * `unfold`
 * `specialize`
 * `simp`

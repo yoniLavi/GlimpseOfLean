@@ -7,15 +7,16 @@ open Real
 
 ## The ring tactic
 
-One of the earliest kind of proofs one encounters while learning mathematics is proving by
-a calculation. It may not sound like a proof, but this is actually using lemmas expressing
-properties of operations on numbers. Of course we usually don't want to invoke those explicitly
-so mathlib has a tactic `ring` taking care of proving equalities that follow by applying
-the properties of all commutative rings.
+One of the earliest kind of proofs one encounters while learning mathematics is proving by a calculation.
+It may not sound like a proof, but this is actually using lemmas expressing properties of operations on numbers.
+Of course we usually don't want to invoke those explicitly so mathlib has a tactic `ring` taking care of proving equalities that follow by applying the properties of all commutative rings.
 -/
 
 
-example (a b c : ℝ) : (a * b) * c = b * (a * c) := by {
+example
+  (a b c : ℝ) :
+  (a * b) * c = b * (a * c) :=
+by {
   ring
 }
 
@@ -24,15 +25,17 @@ After you prove something, you will see a small "No goals" message, which is the
 your proof is finished.
 -/
 
-example (a b : ℝ) : (a+b)^2 = a^2 + 2*a*b + b^2 := by {
-  sorry
+example
+  (a b : ℝ) :
+  (a+b)^2 = a^2 + 2*a*b + b^2 :=
+by {
+  ring
 }
 
 /- In the first example above, take a closer look at where Lean displays parentheses.
 The `ring` tactic certainly knows about associativity of multiplication, but sometimes
 it is useful to understand that binary operation really are binary and an expression like
-`a*b*c` is read as `(a*b)*c` by Lean and the fact that is equal `a*(b*c)` is a lemma
-that is used by the `ring` tactic when needed.
+`a*b*c` is read as `(a*b)*c` by Lean and the fact that is equal `a*(b*c)` is a lemma that is used by the `ring` tactic when needed.
 -/
 
 
@@ -41,25 +44,35 @@ that is used by the `ring` tactic when needed.
 
 Let us now see how to compute using assumptions relating the involved numbers.
 This uses the fundamental property of equality: if two
-mathematical objects A and B are equal then, in any statement involving A, one can replace A
-by B. This operation is called rewriting, and the Lean tactic for this is `rw`.
+mathematical objects A and B are equal then, in any statement involving A, one can replace A by B.
+This operation is called rewriting, and the Lean tactic for this is `rw`.
 Carefully step through the proof below and try to understand what is happening.
 -/
-example (a b c d e : ℝ) (h : a = b + c) (h' : b = d - e) : a + e = d + c := by {
+example
+  (a b c d e : ℝ)
+  (h : a = b + c)
+  (h' : b = d - e) :
+  a + e = d + c :=
+by {
   rw [h]
   rw [h']
   ring
 }
 
 /-
-Note the `rw` tactic changes the current goal. After the first line of the above proof,
-the new goal is `b + c + e = d + c`. So you can read this first proof step as saying:
-"I wanted to prove, `a + e = d + c` but, since assumption `h` tells me `a = b + c`,
-it suffices to prove `b + c + e = d + c`."
+Note the `rw` tactic changes the current goal.
+After the first line of the above proof, the new goal is `b + c + e = d + c`.
+So you can read this first proof step as saying:
+"I wanted to prove, `a + e = d + c` but, since assumption `h` tells me `a = b + c`, it suffices to prove `b + c + e = d + c`."
 
 One can actually do several rewritings in one command.
 -/
-example (a b c d : ℝ) (h : a = b + c) (h' : b = d - e) : a + e = d + c := by {
+example
+  (a b c d : ℝ)
+  (h : a = b + c)
+  (h' : b = d - e) :
+  a + e = d + c :=
+by {
   rw [h, h']
   ring
 }
@@ -67,27 +80,35 @@ example (a b c d : ℝ) (h : a = b + c) (h' : b = d - e) : a + e = d + c := by {
 /-
 Note that putting your cursor between `h` and`h'` shows you the intermediate proof state.
 
-Note also the subtle background color change in the tactic state that show you in green
-what is new and in red what is about to change.
+Note also the subtle background color change in the tactic state that show you in green what is new and in red what is about to change.
 
 Now try it yourself. Note that ring can still do calculations,
 but it doesn't use the assumptions `h` and `h'`
 -/
 
-example (a b c d : ℝ) (h : b = d + d) (h' : a = b + c) : a + b = c + 4 * d := by {
-  sorry
+example
+  (a b c d : ℝ)
+  (h : b = d + d)
+  (h' : a = b + c) :
+  a + b = c + 4 * d :=
+by {
+  rw [h', h]
+  ring
 }
 
 /- ## Rewriting with a lemma
 
-In the previous examples, we rewrote the goal using a local assumption. But we can
-also use lemmas. For instance let us prove a lemma about exponentiation.
+In the previous examples, we rewrote the goal using a local assumption, but we can also use lemmas.
+For instance let us prove a lemma about exponentiation.
 Since `ring` only knows how to prove things from the axioms of rings,
 it doesn't know how to work with exponentiation.
 For the following lemma, we will rewrite with the lemma
 `exp_add x y` twice, which is a proof that `exp(x+y) = exp(x) * exp(y)`.
 -/
-example (a b c : ℝ) : exp (a + b + c) = exp a * exp b * exp c := by {
+example
+  (a b c : ℝ) :
+  exp (a + b + c) = exp a * exp b * exp c :=
+by {
   rw [exp_add (a + b) c]
   rw [exp_add a b]
 }
@@ -96,10 +117,13 @@ example (a b c : ℝ) : exp (a + b + c) = exp a * exp b * exp c := by {
 Note also that after the second `rw` the goal becomes
 `exp a * exp b * exp c = exp a * exp b * exp c` and Lean immediately declares the proof is done.
 
-If we don't provide arguments to the lemmas, Lean will rewrite the first matching
-subexpression. In our example this is good enough. Sometimes more control is needed.
+If we don't provide arguments to the lemmas, Lean will rewrite the first matching subexpression.
+In our example this is good enough, but sometimes we need more control.
 -/
-example (a b c : ℝ) : exp (a + b + c) = exp a * exp b * exp c := by {
+example
+  (a b c : ℝ) :
+  exp (a + b + c) = exp a * exp b * exp c :=
+by {
   rw [exp_add, exp_add]
 }
 
@@ -113,8 +137,12 @@ You can either use `ring` or rewrite with `mul_one x : x * 1 = x` to simplify th
 right-hand side.
 -/
 
-example (a b c : ℝ) : exp (a + b - c) = (exp a * exp b) / (exp c * exp 0) := by {
-  sorry
+example
+  (a b c : ℝ) :
+  exp (a + b - c) = (exp a * exp b) / (exp c * exp 0) :=
+by {
+  rw [exp_sub, exp_add, exp_zero]
+  ring
 }
 
 /-
@@ -123,7 +151,12 @@ example (a b c : ℝ) : exp (a + b - c) = (exp a * exp b) / (exp c * exp 0) := b
 Since equality is a symmetric relation, we can also replace the right-hand side of an
 equality by the left-hand side using `←` as in the following example.
 -/
-example (a b c : ℝ) (h : a = b + c) (h' : a + e = d + c) : b + c + e = d + c := by {
+example
+  (a b c : ℝ)
+  (h : a = b + c)
+  (h' : a + e = d + c) :
+  b + c + e = d + c :=
+by {
   rw [← h, h']
 }
 
@@ -132,13 +165,19 @@ Whenever you see in a Lean file a symbol that you don't see on your keyboard, su
 you can put your mouse cursor above it and learn from a tooltip how to type it.
 In the case of ←, you can type it by typing "\l ", so backslash-l-space.
 
-Note this rewriting from right to left story is all about sides in the equality you want to
-*use*, not about sides in what you want to *prove*. The `rw [← h]` will replace the right-hand side
+Note this rewriting from right to left story is all about sides in the equality you want to *use*, not about sides in what you want to *prove*.
+The `rw [← h]` will replace the right-hand side
 by the left-hand side, so it will look for `b + c` in the current goal and replace it with `a`.
 -/
 
-example (a b c d : ℝ) (h : a = b + b) (h' : b = c) (h'' : a = d) : b + c = d := by {
-  sorry
+example
+  (a b c d : ℝ)
+  (h : a = b + b)
+  (h' : b = c)
+  (h'' : a = d) :
+  b + c = d :=
+by {
+  rw [← h'', h, h']
 }
 
 /- ## Rewriting in a local assumption
@@ -150,7 +189,12 @@ in order to replace `exp(x + y)` by `exp(x) * exp(y)` in assumption `h`.
 The `exact` tactic allows you to give an explicit proof term to prove the current goal.
 -/
 
-example (a b c d : ℝ) (h : c = d*a - b) (h' : b = a*d) : c = 0 := by {
+example
+  (a b c d : ℝ)
+  (h : c = d*a - b)
+  (h' : b = a*d) :
+  c = 0 :=
+by {
   rw [h'] at h
   ring at h
   -- Our assumption `h` is now exactly what we have to prove
@@ -159,16 +203,18 @@ example (a b c d : ℝ) (h : c = d*a - b) (h' : b = a*d) : c = 0 := by {
 
 /- ## Calculation layout using calc
 
-What is written in the above example is very far away from what we would write on
-paper. Let's now see how to get a more natural layout (and also return to using `ring`
-instead of explicit lemma invocations).
-After each `:=` below, the goal is to prove equality with the preceding line
-(or the left-hand on the first line).
-Carefully check you understand this by putting your cursor after each `by` and looking
-at the tactic state.
+What is written in the above example is very far away from what we would write on paper.
+Let's now see how to get a more natural layout (and also return to using `ring` instead of explicit lemma invocations).
+After each `:=` below, the goal is to prove equality with the preceding line (or the left-hand on the first line).
+Carefully check you understand this by putting your cursor after each `by` and looking at the tactic state.
 -/
 
-example (a b c d : ℝ) (h : c = b*a - d) (h' : d = a*b) : c = 0 := by {
+example
+  (a b c d : ℝ)
+  (h : c = b*a - d)
+  (h' : d = a*b) :
+  c = 0 :=
+by {
   calc
     c = b*a - d   := by rw [h]
     _ = b*a - a*b := by rw [h']
@@ -179,13 +225,17 @@ example (a b c d : ℝ) (h : c = b*a - d) (h' : d = a*b) : c = 0 := by {
 Let's do some exercises using `calc`.
 -/
 
-example (a b c : ℝ) (h : a = b + c) : exp (2 * a) = (exp b) ^ 2 * (exp c) ^ 2 := by {
+example
+  (a b c : ℝ)
+  (h : a = b + c) :
+  exp (2 * a) = (exp b) ^ 2 * (exp c) ^ 2 :=
+by {
   calc
-    exp (2 * a) = exp (2 * (b + c))                 := by sorry
-              _ = exp ((b + b) + (c + c))           := by sorry
-              _ = exp (b + b) * exp (c + c)         := by sorry
-              _ = (exp b * exp b) * (exp c * exp c) := by sorry
-              _ = (exp b) ^ 2 * (exp c)^2           := by sorry
+    exp (2 * a) = exp (2 * (b + c))                 := by rw [h]
+              _ = exp ((b + b) + (c + c))           := by ring
+              _ = exp (b + b) * exp (c + c)         := by rw [exp_add]
+              _ = (exp b * exp b) * (exp c * exp c) := by repeat rw [exp_add]
+              _ = (exp b) ^ 2 * (exp c)^2           := by ring
 }
 
 /-
@@ -199,8 +249,15 @@ The underscores should be placed below the left-hand-side of the first line belo
 Aligning the equal signs and `:=` signs is not necessary but looks tidy.
 -/
 
-example (a b c d : ℝ) (h : c = d*a + b) (h' : b = a*d) : c = 2*a*d := by {
-  sorry
+example
+  (a b c d : ℝ)
+  (h : c = d*a + b)
+  (h' : b = a*d) :
+  c = 2*a*d :=
+by {
+  calc
+    c = d*a + a*d := by rw [h, h']
+    _ = 2*a*d     := by ring
 }
 
 /-

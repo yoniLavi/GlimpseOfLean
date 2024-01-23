@@ -21,7 +21,12 @@ Furthermore, we can decompose conjunction and equivalences.
   gives two new assumptions `hPQ : P → Q` and `hQP : Q → P`.
 -/
 
-example (p q r s : Prop) (h : p → r) (h' : q → s) : p ∧ q → r ∧ s := by {
+example
+  (p q r s : Prop)
+  (h : p → r)
+  (h' : q → s) :
+  p ∧ q → r ∧ s :=
+by {
   intro hpq
   rcases hpq with ⟨hp, hq⟩
   constructor
@@ -32,20 +37,36 @@ example (p q r s : Prop) (h : p → r) (h' : q → s) : p ∧ q → r ∧ s := b
 /- One can also prove a conjunction without the constructor tactic by gathering both sides
 using the `⟨`/`⟩` brackets, so the above proof can be rewritten as. -/
 
-example (p q r s : Prop) (h : p → r) (h' : q → s) : p ∧ q → r ∧ s := by {
+example
+  (p q r s : Prop)
+  (h : p → r)
+  (h' : q → s) :
+  p ∧ q → r ∧ s :=
+by {
   intro hpq
   exact ⟨h hpq.1, h' hpq.2⟩
 }
 
 /- You can choose your own style in the next exercise. -/
 
-example (p q r : Prop) : (p → (q → r)) ↔ p ∧ q → r := by {
-  sorry
+example
+  (p q r : Prop) :
+  (p → (q → r)) ↔ p ∧ q → r :=
+by {
+  constructor
+  · intro h hpq
+    exact h hpq.left hpq.right
+
+  · intro h hp hq
+    exact h (And.intro hp hq)
 }
 
 /- Of course Lean doesn't need any help to prove this kind of logical tautologies.
 This is the job of the `tauto` tactic, which can prove true statements in propositional logic. -/
-example (p q r : Prop) : (p → (q → r)) ↔ p ∧ q → r := by {
+example
+  (p q r : Prop) :
+  (p → (q → r)) ↔ p ∧ q → r :=
+by {
   tauto
 }
 
@@ -53,10 +74,13 @@ example (p q r : Prop) : (p → (q → r)) ↔ p ∧ q → r := by {
 
 In order to prove `∃ x, P x`, we give some `x₀` using tactic `use x₀` and
 then prove `P x₀`. This `x₀` can be an object from the local context
-or a more complicated expression. In the example below, the property
-to check after `use` is true by definition so the proof is over.
+or a more complicated expression.
+In the example below, the property to check after `use` is true by definition
+so the proof is over.
 -/
-example : ∃ n : ℕ, 8 = 2*n := by {
+example :
+  ∃ n : ℕ, 8 = 2*n :=
+by {
   use 4
 }
 
@@ -67,7 +91,11 @@ one `x₀` that works.
 Again `h` can come straight from the local context or can be a more
 complicated expression.
 -/
-example (n : ℕ) (h : ∃ k : ℕ, n = k + 1) : n > 0 := by {
+example
+  (n : ℕ)
+  (h : ∃ k : ℕ, n = k + 1) :
+  n > 0 :=
+by {
   -- Let's fix k₀ such that n = k₀ + 1.
   rcases h with ⟨k₀, hk₀⟩
   -- It now suffices to prove k₀ + 1 > 0.
@@ -84,8 +112,16 @@ By definition, `a ∣ b ↔ ∃ k, b = a*k`, so you can prove `a ∣ b` using th
 `use` tactic.
 -/
 
-example (a b c : ℤ) (h₁ : a ∣ b) (h₂ : b ∣ c) : a ∣ c := by {
-  sorry
+example
+  (a b c : ℤ)
+  (h₁ : a ∣ b)
+  (h₂ : b ∣ c) :
+  a ∣ c :=
+by {
+  rcases h₁ with ⟨k₁, hk₁⟩
+  rcases h₂ with ⟨k₂, hk₂⟩
+  rw [hk₁, mul_assoc] at hk₂
+  use k₁*k₂
 }
 
 
@@ -95,8 +131,15 @@ We can now start combining quantifiers, using the definition
   `Surjective (f : X → Y) := ∀ y, ∃ x, f x = y`
 -/
 
-example (f g : ℝ → ℝ) (h : Surjective (g ∘ f)) : Surjective g := by {
-  sorry
+example
+  (f g : ℝ → ℝ)
+  (h : Surjective (g ∘ f)) :
+  Surjective g :=
+by {
+  intro y
+  rcases h y with ⟨x, hx⟩
+  use f x
+  exact hx
 }
 
 /- This is the end of this file about `∃` and `∧`. You've learned about tactics
@@ -106,7 +149,8 @@ example (f g : ℝ → ℝ) (h : Surjective (g ∘ f)) : Surjective g := by {
 
 This is the end of the `Basics` folder. We deliberately left out the logical or operator
 and everything around negation so that you could move as quickly as possible into
-actual mathematical content. You now get to choose one file from the `Topics`.
+actual mathematical content.
+You now get to choose one file from the `Topics`.
 
 See the bottom of `03Forall` for descriptions of the choices.
 -/

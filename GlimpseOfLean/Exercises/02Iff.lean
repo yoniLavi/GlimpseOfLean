@@ -12,7 +12,11 @@ For instance, given a real number `a`, the lemma `sq_pos_of_pos` claims `0 < a �
 so the proof belows apply the "function" `sq_pos_of_pos` to the assumption `ha`.
 -/
 
-example (a : ℝ) (ha : 0 < a) : 0 < a^2 := by {
+example
+  (a : ℝ)
+  (ha : 0 < a) :
+  0 < a^2 :=
+by {
   exact sq_pos_of_pos ha
 }
 
@@ -22,7 +26,11 @@ implication.
 We can also use backward reasoning using the `apply` tactic.
 -/
 
-example (a : ℝ) (ha : 0 < a) : 0 < (a^2)^2 := by {
+example
+  (a : ℝ)
+  (ha : 0 < a) :
+  0 < (a^2)^2 :=
+by {
   apply sq_pos_of_pos -- Thanks to `sq_pos_of_pos`, it suffices to prove `0 < a^2`
   apply sq_pos_of_pos -- Thanks to `sq_pos_of_pos`, it suffices to prove `0 < a`
   exact ha -- this is exactly our assumption `ha`.
@@ -34,8 +42,19 @@ Note that after you `apply add_pos` you will have two goals, that you will have 
 prove one-by-one.
 -/
 
-example (a b : ℝ) (ha : 0 < a) (hb : 0 < b) : 0 < a^2 + b^2 := by {
-  sorry
+example
+  (a b : ℝ)
+  (ha : 0 < a)
+  (hb : 0 < b) :
+  0 < a^2 + b^2 :=
+by {
+  apply add_pos
+  -- prove `0 < a^2`
+  apply sq_pos_of_pos
+  exact ha
+  -- prove `0 < b^2`
+  apply sq_pos_of_pos
+  exact hb
 }
 
 /-
@@ -49,7 +68,11 @@ start with a central dot `·` (typed using `\.`). and it should be indented.
 After the proof is done, the statement becomes available under the name `my_name`.
 -/
 
-example (a : ℝ) (ha : 0 < a) : 0 < (a^2)^2 := by {
+example
+  (a : ℝ)
+  (ha : 0 < a) :
+  0 < (a^2)^2 :=
+by {
   have h2 : 0 < a^2      -- we declare `0 < a^2` as a subgoal
   · apply sq_pos_of_pos  -- we start proving the subgoal
     exact ha             -- this line is indented, so part of the proof of the subgoal
@@ -58,27 +81,49 @@ example (a : ℝ) (ha : 0 < a) : 0 < (a^2)^2 := by {
 
 /- Now prove the same lemma as before using forwards reasoning. -/
 
-example (a b : ℝ) (ha : 0 < a) (hb : 0 < b) : 0 < a^2 + b^2 := by {
-  sorry
+example
+  (a b : ℝ)
+  (ha : 0 < a)
+  (hb : 0 < b) :
+  0 < a^2 + b^2 :=
+by {
+  have h1 : 0 < a^2
+  · apply pow_two_pos_of_ne_zero
+    exact ne_of_gt ha
+
+  have h2 : 0 < b^2
+  · apply pow_two_pos_of_ne_zero
+    exact ne_of_gt hb
+
+  exact add_pos h1 h2
 }
 
 
 /- ## Proving implications
 
 In order to prove an implication, we need to assume to premise and prove the conclusion.
-This is done using the `intro` tactic. Secretely the exercice above was proving the
-implication `a > 0 → (a^2)^2 > 0` but the premise was already introduced for us.
+This is done using the `intro` tactic.
+Secretely the exercice above was proving the implication `a > 0 → (a^2)^2 > 0`,
+but the premise was already introduced for us.
 -/
 
-example (a : ℝ) : a > 0 → b > 0 → a + b > 0 := by {
+example
+  (a : ℝ) :
+  a > 0 → b > 0 → a + b > 0 :=
+by {
   intro ha hb -- You can choose any names here
   exact add_pos ha hb
 }
 
 /- Now prove the following simple statement in propositional logic.
 Note that `p → q → r` means `p → (q → r)`. -/
-example (p q r : Prop) : (p → q) → (p → q → r) → p → r := by {
-  sorry
+example
+  (p q r : Prop) :
+  (p → q) → (p → q → r) → p → r :=
+by {
+  intro hpq hpqr pq
+  have hq : q := hpq pq
+  exact hpqr pq hq
 }
 
 /- # Equivalences
@@ -96,7 +141,10 @@ In the following exercises we will use the lemma:
   `sub_nonneg : 0 ≤ y - x ↔ x ≤ y`
 -/
 
-example {a b c : ℝ} : c + a ≤ c + b ↔ a ≤ b := by {
+example
+  {a b c : ℝ} :
+  c + a ≤ c + b ↔ a ≤ b :=
+by {
   rw [← sub_nonneg]
   have key : (c + b) - (c + a) = b - a -- Here we introduce an intermediate statement named key
   · ring   -- and prove it after a `·`
@@ -108,8 +156,14 @@ example {a b c : ℝ} : c + a ≤ c + b ↔ a ≤ b := by {
 Let's prove a variation
 -/
 
-example {a b : ℝ} (c : ℝ) : a + c ≤ b + c ↔ a ≤ b := by {
-  sorry
+example
+  {a b c : ℝ} :
+  a + c ≤ b + c ↔ a ≤ b :=
+by {
+  rw [← sub_nonneg]
+  have key :  b + c - (a + c) = b - a := by ring
+  rw [key]
+  rw [sub_nonneg]
 }
 
 /-
@@ -122,10 +176,18 @@ number `c` and will output a proof of `a + c ≤ b + c ↔ a ≤ b`". Here is an
 is used.
 -/
 
-example {a b : ℝ}  (ha : 0 ≤ a) : b ≤ a + b := by {
+example
+  {a b : ℝ}
+  (ha : 0 ≤ a) :
+  b ≤ a + b :=
+by {
   calc
     b = 0 + b := by ring
-    _ ≤ a + b := by { rw [add_le_add_iff_right b] ; exact ha  }
+    _ ≤ a + b :=
+    by {
+      rw [add_le_add_iff_right b]
+      exact ha
+    }
 }
 
 /-
@@ -137,7 +199,11 @@ double implication. We can access the two implications of an equivalence `h : P 
 `h.1 : P → Q` and `h.2 : Q → P`. This allows to rewrite the above proof as:
 -/
 
-example {a b : ℝ}  (ha : 0 ≤ a) : b ≤ a + b := by {
+example
+  {a b : ℝ}
+  (ha : 0 ≤ a) :
+  b ≤ a + b :=
+by {
   calc
     b = 0 + b := by ring
     _ ≤ a + b := by exact (add_le_add_iff_right b).2 ha
@@ -146,8 +212,25 @@ example {a b : ℝ}  (ha : 0 ≤ a) : b ≤ a + b := by {
 
 /- Let's do a variant using `add_le_add_iff_left a : a + b ≤ a + c ↔ b ≤ c` instead. -/
 
-example (a b : ℝ) (hb : 0 ≤ b) : a ≤ a + b := by {
-  sorry
+example
+  (a b : ℝ)
+  (hb : 0 ≤ b) :
+  a ≤ a + b :=
+by {
+  calc
+    a = a + 0 := by ring
+    _ ≤ a + b := by exact (add_le_add_iff_left a).2 hb
+}
+
+-- Another alternavite:
+example
+  (a b : ℝ)
+  (hb : 0 ≤ b) :
+  a ≤ a + b :=
+by {
+  have h : a + 0 ≤ a + b := by exact (add_le_add_iff_left a).2 hb
+  ring at h
+  trivial
 }
 
 /-
@@ -161,7 +244,10 @@ One can also separately prove the two implications using the `constructor` tacti
 Here is an example.
 -/
 
-example (a b : ℝ) : (a-b)*(a+b) = 0 ↔ a^2 = b^2 := by {
+example
+  (a b : ℝ) :
+  (a-b)*(a+b) = 0 ↔ a^2 = b^2 :=
+by {
   constructor
   · intro h
     calc
@@ -177,8 +263,20 @@ example (a b : ℝ) : (a-b)*(a+b) = 0 ↔ a^2 = b^2 := by {
 
 /- You can try it yourself in this exercise. -/
 
-example (a b : ℝ) : a = b ↔ b - a = 0 := by {
-  sorry
+example
+  (a b : ℝ) :
+  a = b ↔ b - a = 0 :=
+by {
+  constructor
+  · intro h
+    calc
+      b - a = b - b  := by rw [h]
+          _ = 0      := by ring
+  · intro h
+    calc
+      a = b - (b - a)  := by ring
+      _ = b - 0        := by rw [← h]
+      _ = b            := by ring
 }
 
 /-
